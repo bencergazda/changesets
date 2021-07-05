@@ -3,7 +3,7 @@ import path from "path";
 import micromatch from "micromatch";
 import { ValidationError } from "@changesets/errors";
 import { warn } from "@changesets/logger";
-import { Packages } from "@manypkg/get-packages";
+import { getPackages, Packages } from "@manypkg/get-packages";
 import { Config, WrittenConfig, Linked } from "@changesets/types";
 import packageJson from "../package.json";
 import { getDependentsGraph } from "@changesets/get-dependents-graph";
@@ -16,7 +16,8 @@ export let defaultWrittenConfig = {
   access: "restricted",
   baseBranch: "master",
   updateInternalDependencies: "patch",
-  ignore: [] as ReadonlyArray<string>
+  ignore: [] as ReadonlyArray<string>,
+  projectRoot: process.cwd()
 } as const;
 
 function getNormalisedChangelogOption(
@@ -62,8 +63,17 @@ function isArray<T>(
   return Array.isArray(arg);
 }
 
-export let read = async (cwd: string, packages: Packages) => {
+export let read = async (cwd: string, packages?: Packages) => {
   let json = await fs.readJSON(path.join(cwd, ".changeset", "config.json"));
+
+  if (packages === undefined) {
+    packages = await getPackages(
+      json.projectRoot === undefined
+        ? defaultWrittenConfig.projectRoot
+        : path.resolve(cwd, json.projectRoot)
+    );
+  }
+
   return parse(json, packages);
 };
 
@@ -317,6 +327,11 @@ export let parse = (json: WrittenConfig, packages: Packages): Config => {
       json.ignore === undefined
         ? defaultWrittenConfig.ignore
         : normalizePackageNames(json.ignore, pkgNames)[0],
+
+    projectRoot:
+      json.projectRoot === undefined
+        ? defaultWrittenConfig.projectRoot
+        : path.resolve(process.cwd(), json.projectRoot),
 
     bumpVersionsWithWorkspaceProtocolOnly:
       json.bumpVersionsWithWorkspaceProtocolOnly === true,

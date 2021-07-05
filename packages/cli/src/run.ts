@@ -36,11 +36,9 @@ export async function run(
     throw new ExitError(1);
   }
 
-  const packages = await getPackages(cwd);
-
   let config: Config;
   try {
-    config = await read(cwd, packages);
+    config = await read(cwd);
   } catch (e) {
     let oldConfigExists = await fs.pathExists(
       path.resolve(cwd, ".changeset/config.js")
@@ -61,6 +59,8 @@ export async function run(
       throw e;
     }
   }
+
+  const packages = await getPackages(config.projectRoot);
 
   if (input.length < 1) {
     const { empty, open }: CliOptions = flags;
