@@ -43,6 +43,7 @@ test("read reads the config", async () => {
     baseBranch: "master",
     updateInternalDependencies: "patch",
     ignore: [],
+    projectRoot: ".",
     bumpVersionsWithWorkspaceProtocolOnly: false,
     ___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH: {
       onlyUpdatePeerDependentsWhenOutOfRange: false,
@@ -60,6 +61,7 @@ let defaults = {
   baseBranch: "master",
   updateInternalDependencies: "patch",
   ignore: [],
+  projectRoot: ".",
   ___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH: {
     onlyUpdatePeerDependentsWhenOutOfRange: false,
     updateInternalDependents: "out-of-range",
@@ -224,6 +226,15 @@ let correctCases: Record<string, CorrectCase> = {
     output: {
       ...defaults,
       ignore: ["pkg-a", "@pkg/a", "@pkg/b"]
+    }
+  },
+  projectRoot: {
+    input: {
+      projectRoot: "subdirectory"
+    },
+    output: {
+      ...defaults,
+      projectRoot: "subdirectory"
     }
   },
   updateInternalDependents: {

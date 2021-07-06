@@ -1,3 +1,4 @@
+import * as path from "path";
 import assembleReleasePlan from "@changesets/assemble-release-plan";
 import readChangesets from "@changesets/read";
 import { read } from "@changesets/config";
@@ -10,11 +11,11 @@ export default async function getReleasePlan(
   sinceRef?: string,
   passedConfig?: Config
 ): Promise<ReleasePlan> {
-  const packages = await getPackages(cwd);
   const preState = await readPreState(cwd);
-  const readConfig = await read(cwd, packages);
+  const readConfig = await read(cwd);
   const config = passedConfig ? { ...readConfig, ...passedConfig } : readConfig;
   const changesets = await readChangesets(cwd, sinceRef);
+  const packages = await getPackages(path.resolve(cwd, config.projectRoot));
 
   return assembleReleasePlan(changesets, packages, config, preState);
 }

@@ -60,7 +60,7 @@ export async function run(
     }
   }
 
-  const packages = await getPackages(config.projectRoot);
+  const packages = await getPackages(path.resolve(cwd, config.projectRoot));
 
   if (input.length < 1) {
     const { empty, open }: CliOptions = flags;

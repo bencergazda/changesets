@@ -17,7 +17,7 @@ export let defaultWrittenConfig = {
   baseBranch: "master",
   updateInternalDependencies: "patch",
   ignore: [] as ReadonlyArray<string>,
-  projectRoot: process.cwd()
+  projectRoot: "."
 } as const;
 
 function getNormalisedChangelogOption(
@@ -68,9 +68,12 @@ export let read = async (cwd: string, packages?: Packages) => {
 
   if (packages === undefined) {
     packages = await getPackages(
-      json.projectRoot === undefined
-        ? defaultWrittenConfig.projectRoot
-        : path.resolve(cwd, json.projectRoot)
+      path.resolve(
+        cwd,
+        json.projectRoot === undefined
+          ? defaultWrittenConfig.projectRoot
+          : json.projectRoot
+      )
     );
   }
 
@@ -331,7 +334,7 @@ export let parse = (json: WrittenConfig, packages: Packages): Config => {
     projectRoot:
       json.projectRoot === undefined
         ? defaultWrittenConfig.projectRoot
-        : path.resolve(process.cwd(), json.projectRoot),
+        : json.projectRoot,
 
     bumpVersionsWithWorkspaceProtocolOnly:
       json.bumpVersionsWithWorkspaceProtocolOnly === true,
